@@ -17,7 +17,7 @@ class RGBLEDs():
             led_count*4 +
             (led_count + 14) // 16
             )
-        self.set_brightness(31)
+        self.set_brightness(21)
 
         self.off()
 
