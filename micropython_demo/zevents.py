@@ -10,13 +10,13 @@ class Buttons(object):
     def __init__(self, display):
         self.display = display
         self.button_a = button.ButtonA()
-        self.button_a.debounce_ms = 500
-        self.button_a.long_press_ms = 7500
+        self.button_a.debounce_ms = 5
+        self.button_a.long_press_ms = 75
         self.button_b = button.ButtonB()
-        self.button_b.debounce_ms = 500
-        self.button_b.long_press_ms = 7500
+        self.button_b.debounce_ms = 5
+        self.button_b.long_press_ms = 75
         self.button_c = button.ButtonC()
-        self.buttons = [button.ButtonA(), button.ButtonB(), button.ButtonC()]
+        self.buttons = [self.button_a, self.button_b, self.button_c]
         self.buttons_release()
         self.buttons_pressed = deque((), 10)
         # self.button_a_released = True
@@ -49,8 +49,11 @@ class Buttons(object):
         return self.buttons_list
 
     def get_button_pressed(self) -> str:
+        """
+        Return button pressed: button_a_triggered
+        """
         if len(self.buttons_pressed) > 0:
-            return f'event_{self.buttons_pressed.popleft()}'
+            return f'button_{self.buttons_pressed.popleft()}_triggered'
         else:
             return ''
 
@@ -82,7 +85,7 @@ class CheckEvents(object):
             return "timeout_triggered"
         if button_event is not None:
             self.display.text(f'be:{button_event}', 0, 14)
-            return f'button_{button_event}'
+            return button_event
         return None
 
 

@@ -4,18 +4,13 @@
 # quickly.
 
 import time
-# test fsm
-# from zumo_2040_robot import robot
-
-# from line_follower import max_speed
-
 import zactions
 import zevents
 
 frame_speed = 1
 max_timeout = 5
 min_timeout = 1
-clock_rate = 2
+clock_rate = 1
 
 class Timer():
     def __init__(self):
@@ -58,6 +53,7 @@ class FSM():
         return
 
     def do_fsm(self):
+        loop_count: str = ''
         while self.checkEvents.not_halted and self.stateActions.not_halted:
             self.display.fill(0)
             triggeredEvent = self.checkEvents.triggered_event()
@@ -70,7 +66,10 @@ class FSM():
             self.display.text("RGB demo in fsm", 0, 0)
             self.display.text(f"T:{triggeredEvent}", 0, 28)
             self.display.text(f"S:{nextState}, {int(time.time())}", 0, 36)
-            self.display.text("Press B to exit", 0, 56)
+            loop_count += '>'
+            self.display.text(loop_count, 0, 56)
+            if len(loop_count) > 20:
+                loop_count = ''
             self.display.show()
             zactions.rgb_leds.show()
             if clock_rate > 0:

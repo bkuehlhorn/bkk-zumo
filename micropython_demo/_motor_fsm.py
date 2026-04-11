@@ -1,45 +1,50 @@
 """
-FSM to test timeout and 6 leds
+FSM to test button and 6 leds
 """
 import time
-from zumo_2040_robot import robot
+from finite_machine.zumo_2040_robot import robot
 display = robot.Display()
 
+import fsm
+import zactions, zevents
 from finite_machine import fsm
 from finite_machine import actions
 from finite_machine import events
 
-led_seconds = 1 # micro ticks
+drive_sides_seconds = 2
+drive_corners_seconds = 1.5
+
 timer_action_event = events.Timer()
-timer_action_event.start(led_seconds)
+timer_action_event.start(1)
 
 eventList = [events.prompt_event, timer_action_event.event,
              [events.proximity_event, "closer"],
              [events.proximity_event, "farther"]]
 stateMatrix = {
     "init": {
-        "event1": "state1",
-        "timeout_triggered": "state1",
-        "closer": "state2",
+        "event1": "forward",
+        "button_b_triggered": "forward",
+        "closer": "left",
         "event_a": "state3",
         "event4": "state4",
         "timeout": "init",
         "done": "done"
     },
-    "state1": {
-        "init": "state1",
-        "timeout_triggered": "state2",
-        "event1": "init",
-        "event2": "state2",
+    "forward": {
+        "init": "forward",
+        "button_b_triggered": "left",
+        "timeout_triggered": "left",
+        "event2": "left",
         "event_a": "state3",
         "event4": "state4",
         "timeout": "init",
         "done": "done"
     },
-    "state2": {
-        "init": "state2",
-        "timeout_triggered": "state3",
-        "event1": "state1",
+    "left": {
+        "init": "left",
+        "button_b_triggered": "init",
+        "timeout_triggered": "forward",
+        "event1": "forward",
         "event2": "init",
         "event3": "state3",
         "event_a": "state4",
@@ -48,9 +53,9 @@ stateMatrix = {
     },
     "state3": {
         "init": "state3",
-        "timeout_triggered": "state4",
-        "event1": "state1",
-        "event_a": "state2",
+        "button_b_triggered": "state4",
+        "event1": "forward",
+        "event_a": "left",
         "event3": "init",
         "event4": "state4",
         "timeout": "init",
@@ -58,9 +63,9 @@ stateMatrix = {
     },
     "state4": {
         "init": "state4",
-        "timeout_triggered": "state5",
-        "event_a": "state1",
-        "event2": "state2",
+        "button_b_triggered": "state5",
+        "event_a": "forward",
+        "event2": "left",
         "event3": "init",
         "event4": "state4",
         "timeout": "init",
@@ -68,9 +73,9 @@ stateMatrix = {
     },
     "state5": {
         "init": "state4",
-        "timeout_triggered": "init",
-        "event1": "state1",
-        "event2": "state2",
+        "button_b_triggered": "init",
+        "event1": "forward",
+        "event2": "left",
         "event3": "init",
         "event_a": "state4",
         "timeout": "init",
@@ -80,8 +85,8 @@ stateMatrix = {
         "init": "state4",
         "timeout_triggered": "init",
         "proximity_triggered": "state4",
-        "front_right_closer_triggered": "state1",
-        "front_right_farther_triggered": "state2",
+        "front_right_closer_triggered": "forward",
+        "front_right_farther_triggered": "left",
         "right_closer_triggered": "state3",
         "right_farther_triggered": "state4",
         "front_left_closer_triggered": "state5",
@@ -92,8 +97,8 @@ stateMatrix = {
     },
     "done": {
         "init": "state4",
-        "event1": "state1",
-        "event2": "state2",
+        "event1": "forward",
+        "event2": "left",
         "event3": "init",
         "event4": "state4",
         "timeout": "init",
@@ -105,22 +110,33 @@ actionMatrix = {
     "init": [(actions.off_leds, ()),
              (actions.display_text, ("init",)),
              (actions.set_leds, (0, 100, 1, 1)),
-             (timer_action_event.start, (led_seconds,))],
-    "state1": [(actions.set_leds, (1, 1, 100, 1)),
-               (actions.display_text, ("state1",)),
-               (timer_action_event.start, (led_seconds,))],
-    "state2": [(actions.set_leds, (2, 1, 1, 100)),
-               (actions.display_text, ("state2",)),
-               (timer_action_event.start, (led_seconds,))],
+             (timer_action_event.start, (drive_sides_seconds,)),
+             (actions.forward, (0,)),
+             ],
+    "forward": [(actions.off_leds, ()),
+                (actions.set_leds, (1, 1, 100, 1)),
+                (actions.display_text, ("forward",)),
+                (timer_action_event.start, (drive_sides_seconds,)),
+                (actions.forward, (1000,))
+                ],
+    "left": [(actions.off_leds, ()),
+             (actions.set_leds, (2, 1, 1, 100)),
+             (actions.left, (1000,)),
+             (actions.display_text, ("left",)),
+             (timer_action_event.start, (drive_corners_seconds,))
+             ],
     "state3": [(actions.set_leds, (3, 100, 100, 1)),
                (actions.display_text, ("state3",)),
-               (timer_action_event.start, (led_seconds,))],
+               # (timer_action_event.start, (drive_corners_seconds,))
+               ],
     "state4": [(actions.set_leds, (4, 1, 100, 100)),
                (actions.display_text, ("state4",)),
-               (timer_action_event.start, (led_seconds,))],
+               # (timer_action_event.start, (drive_corners_seconds,))
+               ],
     "state5": [(actions.set_leds, (5, 100, 100, 100)),
                (actions.display_text, ("state5",)),
-               (timer_action_event.start, (led_seconds,))],
+               # (timer_action_event.start, (drive_corners_seconds,))
+               ],
     "done": [(actions.done_action,),
              (actions.off_leds,), ]
 }
