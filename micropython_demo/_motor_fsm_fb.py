@@ -3,149 +3,165 @@ FSM to test button and 6 leds
 """
 from finite_machine.zumo_2040_robot import robot
 
-display = robot.Display()
-
 from finite_machine import fsm
 from finite_machine import actions
 from finite_machine import events
+from finite_machine import proximity_sensors_event
+from finite_machine.events import Event_trigger
 
-drive_seconds = 2
-drive_spin = 5
+display = robot.Display()
+lineSensors = robot.LineSensors()
+proximity_sensors = proximity_sensors_event.ProximitySensors(robot)
+angular_event = events.AngularEvent(robot)
+
+led_seconds =   1000 # micro ticks
+drive_seconds = 1000
+drive_spin =    5000
+move_speed = 1000
 timer_action_event = events.Timer()
 timer_action_event.start(drive_seconds)
 
-eventList = [events.prompt_event, timer_action_event.event,
-             [events.proximity_event, "closer"],
-             [events.proximity_event, "farther"]]
 stateMatrix = {
     "init": {
         "event1": "forward",
-        "button_a_triggered": "spin_left",
-        "button_b_triggered": "forward",
-        "button_c_triggered": "done",
-        "closer": "left",
-        "event_a": "state3",
-        "event4": "state4",
-        "timeout": "init",
+        Event_trigger.button_a_triggered: "spin_left",
+        Event_trigger.button_b_triggered: "forward",
+        Event_trigger.button_c_triggered: "done",
         "done": "done"
     },
     "forward": {
         "init": "forward",
-        "button_b_triggered": "init",
-        "timeout_triggered": "back",
-        "event2": "left",
-        "event_a": "state3",
-        "event4": "state4",
-        "timeout": "init",
+        Event_trigger.button_b_triggered: "init",
+        Event_trigger.timeout_triggers[0]: "back",
+        Event_trigger.timeout_triggers[1]: "right",
         "done": "done"
     },
     "back": {
         "init": "back",
-        "button_b_triggered": "init",
-        "timeout_triggered": "forward",
-        "event1": "forward",
-        "event2": "init",
-        "event3": "state3",
-        "event_a": "state4",
-        "timeout": "init",
+        Event_trigger.button_b_triggered: "init",
+        Event_trigger.timeout_triggers[0]: "forward",
+        Event_trigger.timeout_triggers[1]: "left",
         "done": "done"
+    },
+    "left": {
+        "init": "left",
+        Event_trigger.button_b_triggered: "init",
+        Event_trigger.timeout_triggers[0]: "forward",
+        Event_trigger.timeout_triggers[1]: "left",
+        "done": "done"
+    },
+    "right": {
+        "init": "left",
+        Event_trigger.button_b_triggered: "init",
+        Event_trigger.timeout_triggers[0]: "forward",
+        Event_trigger.timeout_triggers[1]: "right",
+        "done": "done"
+    },
+    "spin": {
+        "init": "right_closer",
+        Event_trigger.button_b_triggered: "init",
+        Event_trigger.timeout_triggers[0]: "spin_left",
+        Event_trigger.timeout_triggers[1]: "spin_right",
     },
     "spin_left": {
-        "init": "state3",
-        "button_b_triggered": "init",
-        "timeout_triggered": "init",
-        "event1": "forward",
-        "event_a": "left",
-        "event3": "init",
-        "event4": "state4",
-        "timeout": "init",
-        "done": "done"
+        "init": "right_closer",
+        Event_trigger.button_b_triggered: "init",
+        Event_trigger.timeout_triggers[0]: "init",
     },
-    "state4": {
-        "init": "state4",
-        "button_b_triggered": "state5",
-        "event_a": "forward",
-        "event2": "left",
-        "event3": "init",
-        "event4": "state4",
-        "timeout": "init",
-        "done": "done"
-    },
-    "state5": {
-        "init": "state4",
-        "button_b_triggered": "init",
-        "event1": "forward",
-        "event2": "left",
-        "event3": "init",
-        "event_a": "state4",
-        "timeout": "init",
-        "done": "done"
+    "spin_right": {
+        "init": "right_closer",
+        Event_trigger.button_b_triggered: "init",
+        Event_trigger.timeout_triggers[0]: "init",
     },
     "proximity": {
-        "init": "state4",
-        "timeout_triggered": "init",
-        "proximity_triggered": "state4",
-        "front_right_closer_triggered": "forward",
-        "front_right_farther_triggered": "left",
-        "right_closer_triggered": "state3",
-        "right_farther_triggered": "state4",
-        "front_left_closer_triggered": "state5",
-        "front_left_farther_triggered": "state6",
-        "left_closer_triggered": "state7",
-        "left_farther_triggered": "state8",
+        "init": "init",
+        Event_trigger.timeout_triggers[0]: "init",
+        Event_trigger.sensor_front_left_closer_triggered: "left",
+        Event_trigger.sensor_front_right_closer_triggered: "right",
+        Event_trigger.sensor_left_right_closer_triggered: "left_right",
+        Event_trigger.sensor_right_left_closer_triggered: "right_left",
+        Event_trigger.sensor_front_left_farther_triggered: "forward_left",
+        Event_trigger.sensor_front_right_farther_triggered: "forward_right",
+        Event_trigger.sensor_left_right_farther_triggered: "forward",
+        Event_trigger.sensor_right_left_farther_triggered: "forward",
         "done": "done"
     },
     "done": {
-        "init": "state4",
-        "event1": "forward",
-        "event2": "left",
-        "event3": "init",
-        "event4": "state4",
-        "timeout": "init",
+        Event_trigger.timeout_triggers[0]: "init",
         "done": "done"
     },
 }
 state = "init"
 actionMatrix = {
-    "init": [(actions.off_leds, ()),
-             (actions.display_text, ("init",)),
-             (actions.set_leds, (0, 100, 1, 1)),
-             (actions.forward, (0,))
-             # (timer_action_event.start, (drive_seconds,))
-             ],
-    "forward": [(actions.off_leds, ()),
-             (actions.set_leds, (1, 1, 100, 1)),
-                (actions.display_text, ("forward",)),
-                (timer_action_event.start, (drive_seconds,)),
-                (actions.forward, (1000,))
-                ],
-    "back": [(actions.off_leds, ()),
-             (actions.set_leds, (4, 1, 100, 100)),
-             (actions.back, (1000,)),
-             (actions.display_text, ("back",)),
-             (timer_action_event.start, (drive_seconds,))
-             ],
-    "spin_left": [(actions.set_leds, (3, 100, 100, 1)),
-               (actions.display_text, ("spin_left",)),
-                  (actions.spin_left, (1000,)),
-                  (timer_action_event.start, (drive_spin,))
-               ],
-    "state4": [(actions.set_leds, (4, 1, 100, 100)),
-               (actions.display_text, ("state4",)),
-               # (timer_action_event.start, (drive_seconds,))
-               ],
-    "state5": [(actions.set_leds, (5, 100, 100, 100)),
-               (actions.display_text, ("state5",)),
-               # (timer_action_event.start, (drive_seconds,))
-               ],
-    "done": [(actions.done_action,),
-             (actions.off_leds,), ]
+    "init": [
+        (actions.off_leds, ()),
+        (actions.display_text, ("init", True)),
+        (actions.set_leds, (0, 100, 1, 1)),
+        (actions.forward, (0,))
+        # (timer_action_event.start, (drive_seconds,))
+    ],
+    "forward": [
+        (actions.off_leds, ()),
+        (actions.set_leds, (1, 1, 100, 1)),
+        (actions.display_text, ("forward", True)),
+        (timer_action_event.start, (drive_seconds,1)),
+        (actions.forward, (move_speed,))
+    ],
+    "back": [
+        (actions.off_leds, ()),
+        (actions.set_leds, (4, 100, 1, 100)),
+        (actions.back, (move_speed,)),
+        (actions.display_text, ("back", True)),
+        (timer_action_event.start, (drive_seconds,1))
+    ],
+    "left": [
+        (actions.off_leds, ()),
+        (actions.set_leds, (5, 100, 100, 1)),
+        (actions.left, (move_speed,)),
+        (actions.display_text, ("left", True)),
+        (timer_action_event.start, (drive_seconds,1))
+    ],
+    "right": [
+        (actions.off_leds, ()),
+        (actions.set_leds, (3, 1, 100, 100)),
+        (actions.right, (move_speed,)),
+        (actions.display_text, ("right", True)),
+        (timer_action_event.start, (drive_seconds,1))
+    ],
+    "left_right": [
+        (actions.display_state, ()),
+        (timer_action_event.start, (drive_seconds,1))
+    ],
+    "right_left": [
+        (actions.display_state, ()),
+        (timer_action_event.start, (drive_seconds,1))
+    ],
+    "spin": [
+        (actions.display_state, ()),
+        (timer_action_event.start, (drive_seconds,1))
+    ],
+    "spin_left": [
+        (actions.set_leds, (0, 100, 100, 1)),
+        (actions.display_text, ("spin_left", True)),
+        (actions.spin_left, (move_speed,)),
+        (timer_action_event.start, (drive_spin,1)),
+    ],
+    "spin_right": [
+        (actions.set_leds, (2, 1, 100, 100)),
+        (actions.display_text, ("spin_right", True)),
+        (actions.spin_right, (move_speed,)),
+        (timer_action_event.start, (drive_spin,)),
+        (timer_action_event.start, (drive_seconds,1)),
+    ],
+    "done": [
+        (actions.done_action,),
+        (actions.off_leds,), ]
 }
 
 
 # logging = fsm_logging()
-checkEvents = events.CheckEvents(eventList, timer_action_event, display)
-# FSM => matrix[state, event] of nextState
+checkEvents = events.CheckEvents(stateMatrix, timer_action_event,
+                                 display, lineSensors, proximity_sensors, angular_event)
 stateActions = actions.StateAction(actionMatrix, display)
 
 fsm = fsm.FSM(checkEvents, stateActions, stateMatrix, robot, display)

@@ -87,9 +87,9 @@ while True:
         display.text("Hold B to exit", 0, 56)
     else:
         display.fill_rect(36, 64-int(line[0]*scale), 8, int(line[0]*scale), 1)
-        display.fill_rect(48, 64-int(line[1]*scale), 8, int(line[1]*scale), 1)
-        display.fill_rect(60, 64-int(line[2]*scale), 8, int(line[2]*scale), 1)
-        display.fill_rect(72, 64-int(line[3]*scale), 8, int(line[3]*scale), 1)
-        display.fill_rect(84, 64-int(line[4]*scale), 8, int(line[4]*scale), 1)
+        display.fill_rect(48, 64-int(line[1]*scale), 8, int(line[1]*scale), 2)
+        display.fill_rect(60, 64-int(line[2]*scale), 8, int(line[2]*scale), 3)
+        display.fill_rect(72, 64-int(line[3]*scale), 8, int(line[3]*scale), 4)
+        display.fill_rect(84, 64-int(line[4]*scale), 8, int(line[4]*scale), 5)
 
     display.show()

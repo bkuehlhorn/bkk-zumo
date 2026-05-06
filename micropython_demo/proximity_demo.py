@@ -14,7 +14,7 @@ while not button_b.check():
     stop = time.ticks_us()
 
     display.fill(0)
-    display.text("{:.1f}ms".format(time.ticks_diff(stop, start) / 1000), 0, 0)
+    # display.text("{:.1f}ms".format(time.ticks_diff(stop, start) / 1000), 0, 0)
     display.text("<B", 112, 0)
     count = 0
 
@@ -29,6 +29,7 @@ while not button_b.check():
         proximity_sensors.right_counts_with_right_leds(),
     ]
 
+    print(readings)
     if proximity_sensors.total_counts() > 0:
         angle_estimate = proximity_sensors.angle_estimate()
         display.text(str(angle_estimate), 0, 10)

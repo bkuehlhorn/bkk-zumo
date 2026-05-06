@@ -5,6 +5,7 @@
 # 500 ms so you can see the debouncing effect by pressing the button
 # quickly.
 
+import time
 from zumo_2040_robot import robot
 
 rgb_leds = robot.RGBLEDs()
@@ -16,6 +17,7 @@ display = robot.Display()
 # l_max = int(max * .95)
 # r_max = max
 # step = max//100
+state:str = 'done'
 
 from collections import deque
 
@@ -23,10 +25,20 @@ buffer_len = 15
 
 max_timeout = 5
 min_timeout = 1
+corner_rate = 4
 
-def display_text(_text):
+def display_text(_text, _display_state=False):
+    if _display_state:
+        display.text(state, 0, 8)
+        display.text('_text', 0, 14)
+        print(f"state:{state}, text:{_text}")
     display.text(_text, 0, 0)
-    print(f"{_text=}")
+    display.text('_textxx', 10, 8)
+    print(f"{_text=} xxx")
+
+def display_state():
+    display.text(state, 0, 8)
+    print(f"state:{state}")
 
 def set_leds(_led, r, g, b):
     rgb_leds.set(_led, [r, g // 3, b])
@@ -48,10 +60,37 @@ def rainbow(hue_start, hue_step, s, v):
 def show_leds():
     rgb_leds.show()
 
+def forward(_speed):
+    print(f"forward:{_speed=}")
+    motors.set_speeds(_speed, _speed)
+    return
+def back(_speed):
+    print(f"back:{_speed=}")
+    motors.set_speeds(-_speed, -_speed)
+    return
+def left(_speed):
+    print(f"left:{_speed=}")
+    motors.set_speeds(_speed/corner_rate, _speed)
+    return
+def right(_speed):
+    print(f"left:{_speed=}")
+    motors.set_speeds(_speed, _speed/corner_rate)
+    return
+def spin_right(_speed):
+    print(f"left:{_speed=}")
+    motors.set_speeds(_speed/2, -_speed/2)
+    return
+def spin_left(_speed):
+    print(f"left:{_speed=}")
+    motors.set_speeds(-_speed/2, _speed/2)
+    return
+
+def sleep(_delay):
+    time.sleep(_delay)
+
 class StateAction(object):
     def __init__(self, _actions, _display):
         self.display = _display
-        display = _display
         self.actions = _actions
         self.not_triggered = True
         self.triggered = None
@@ -59,6 +98,8 @@ class StateAction(object):
         rgb_leds.set_brightness(5)
 
     def do_actions(self, _state):
+        global state
+        state = _state
         if _state == "done":
             self.not_halted = False
             return
@@ -66,19 +107,9 @@ class StateAction(object):
         self.display.text(_state, 0, 44)
 
         for action in self.actions[_state]:
-            action[0](*action[1])
+            if action is not None:
+                action[0](*action[1])
         return
-
-    # def get_actions(self, _state) -> list:
-    #     if _state == "done":
-    #         self.not_halted = False
-    #     return self.actions.get(_state, None)
-
-
-# def print_state(_state, _event, _args) -> int:
-#     print(f"{_state=} with {_event}")
-#     return 10
-
 
 def done_action(_state, _event, _args) -> int:
     print(f"{_state=} with {_event}, args={_args}")
