@@ -7,6 +7,7 @@ class FSM():
     drive_spin = 1000
     spin_speed = 1000
     drive_speed = 3000
+    move_speed = 1000
 
     def __init__(self, _events, _actions, _display, _proximity_sensors, _angular_event, _timer_action_event, _lineSensors, _proximity_sensors_event):
         self.events = _events
@@ -21,58 +22,65 @@ class FSM():
 
         self.stateMatrix = {
             "init": {
-                "event1": "forward",
                 self.events.Event_trigger.button_a_triggered: "spin_left",
                 self.events.Event_trigger.button_b_triggered: "forward",
                 self.events.Event_trigger.button_c_triggered: "done",
                 "done": "done"
             },
             "forward": {
-                "init": "forward",
                 self.events.Event_trigger.button_b_triggered: "init",
                 self.events.Event_trigger.timeout_triggers[0]: "back",
                 self.events.Event_trigger.timeout_triggers[1]: "right",
-                "done": "done"
             },
             "back": {
-                "init": "back",
                 self.events.Event_trigger.button_b_triggered: "init",
                 self.events.Event_trigger.timeout_triggers[0]: "forward",
                 self.events.Event_trigger.timeout_triggers[1]: "left",
-                "done": "done"
             },
             "left": {
-                "init": "left",
                 self.events.Event_trigger.button_b_triggered: "init",
                 self.events.Event_trigger.timeout_triggers[0]: "forward",
                 self.events.Event_trigger.timeout_triggers[1]: "left",
-                "done": "done"
             },
             "right": {
-                "init": "left",
                 self.events.Event_trigger.button_b_triggered: "init",
                 self.events.Event_trigger.timeout_triggers[0]: "forward",
                 self.events.Event_trigger.timeout_triggers[1]: "right",
-                "done": "done"
+            },
+            "left_right": {
+                self.events.Event_trigger.button_b_triggered: "init",
+                self.events.Event_trigger.timeout_triggers[0]: "forward",
+                self.events.Event_trigger.timeout_triggers[1]: "right",
+            },
+            "right_left": {
+                self.events.Event_trigger.button_b_triggered: "init",
+                self.events.Event_trigger.timeout_triggers[0]: "forward",
+                self.events.Event_trigger.timeout_triggers[1]: "right",
+            },
+            "forward_left": {
+                self.events.Event_trigger.button_b_triggered: "init",
+                self.events.Event_trigger.timeout_triggers[0]: "forward",
+                self.events.Event_trigger.timeout_triggers[1]: "right",
+            },
+            "forward_right": {
+                self.events.Event_trigger.button_b_triggered: "init",
+                self.events.Event_trigger.timeout_triggers[0]: "forward",
+                self.events.Event_trigger.timeout_triggers[1]: "right",
             },
             "spin": {
-                "init": "right_closer",
                 self.events.Event_trigger.button_b_triggered: "init",
                 self.events.Event_trigger.timeout_triggers[0]: "spin_left",
                 self.events.Event_trigger.timeout_triggers[1]: "spin_right",
             },
             "spin_left": {
-                "init": "right_closer",
                 self.events.Event_trigger.button_b_triggered: "init",
                 self.events.Event_trigger.timeout_triggers[0]: "init",
             },
             "spin_right": {
-                "init": "right_closer",
                 self.events.Event_trigger.button_b_triggered: "init",
                 self.events.Event_trigger.timeout_triggers[0]: "init",
             },
             "proximity": {
-                "init": "init",
                 self.events.Event_trigger.timeout_triggers[0]: "init",
                 self.events.Event_trigger.sensor_front_left_closer_triggered: "left",
                 self.events.Event_trigger.sensor_front_right_closer_triggered: "right",
@@ -82,7 +90,6 @@ class FSM():
                 self.events.Event_trigger.sensor_front_right_farther_triggered: "forward_right",
                 self.events.Event_trigger.sensor_left_right_farther_triggered: "forward",
                 self.events.Event_trigger.sensor_right_left_farther_triggered: "forward",
-                "done": "done"
             },
             "done": {
                 self.events.Event_trigger.timeout_triggers[0]: "init",
@@ -149,6 +156,13 @@ class FSM():
                 (self.timer_action_event.start, (self.drive_spin,1)),
             ],
             "spin_right": [
+                (self.actions.set_leds, (2, 1, 100, 100)),
+                (self.actions.display_text, ("spin_right", True)),
+                (self.actions.spin_right, (self.move_speed,)),
+                (self.timer_action_event.start, (self.drive_spin,)),
+                (self.timer_action_event.start, (self.drive_seconds,1)),
+            ],
+            "proximity": [
                 (self.actions.set_leds, (2, 1, 100, 100)),
                 (self.actions.display_text, ("spin_right", True)),
                 (self.actions.spin_right, (self.move_speed,)),

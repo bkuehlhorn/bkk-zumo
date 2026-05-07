@@ -45,32 +45,21 @@ class FSM():
                 self.events.Event_trigger.done_triggered: "done",
                 self.events.Event_trigger.timeout_triggers[1]: "init",
             },
-            "state5": {
-                self.events.Event_trigger.timeout_triggers[0]: "init",
-                self.events.Event_trigger.timeout_triggers[1]: "init",
-                self.events.Event_trigger.done_triggered: "done",
-            },
+            # "state5": {
+            #     self.events.Event_trigger.timeout_triggers[0]: "init",
+            #     self.events.Event_trigger.timeout_triggers[1]: "init",
+            #     self.events.Event_trigger.done_triggered: "done",
+            # },
             "proximity": {
-                "init": "state4",
                 self.events.Event_trigger.timeout_triggers[0]: "init",
                 "proximity_triggered": "state4",
                 "front_right_closer_triggered": "state1",
                 "front_right_farther_triggered": "state2",
                 "right_closer_triggered": "state3",
                 "right_farther_triggered": "state4",
-                "front_left_closer_triggered": "state5",
-                "front_left_farther_triggered": "state6",
-                "left_closer_triggered": "state7",
-                "left_farther_triggered": "state8",
                 "done": "done"
             },
             "done": {
-                "init": "state4",
-                "event1": "state1",
-                "event2": "state2",
-                "event3": "init",
-                "event4": "state4",
-                self.events.Event_trigger.timeout_triggers[0]: "init",
                 "done": "done"
             },
         }
@@ -96,7 +85,7 @@ class FSM():
             "state4": [(self.actions.set_leds, (4, 1, 100, 100)),
                        (self.actions.display_text, ("state4",)),
                        (self.timer_action_event.start, (self.led_seconds, 1))],
-            "state5": [(self.actions.set_leds, (5, 100, 100, 100)),
+            "proximity": [(self.actions.set_leds, (5, 100, 100, 100)),
                        (self.actions.display_text, ("state5",)),
                        (self.timer_action_event.start, (self.led_seconds, 1))],
             "done": [(self.actions.done_action,),

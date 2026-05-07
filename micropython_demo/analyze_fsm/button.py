@@ -1,17 +1,17 @@
-
 class Button():
     def __init__(self):
         # Initialize to the current pressed/not-pressed state
         # so that check() will not immediately return True.
         # self.last_event = self.is_pressed()
         # self.last_event_t = ticks_us()
-
-        # Ensure that is_long_pressed() does not immediately return True.
+        #
+        # # Ensure that is_long_pressed() does not immediately return True.
         # self.not_pressed_t = ticks_us()
-
-        # configurable parameters
-        self.debounce_ms = 10
-        self.long_press_ms = 750
+        #
+        # # configurable parameters
+        # self.debounce_ms = 10
+        # self.long_press_ms = 750
+        pass
 
     # Call this method periodically to check for long presses.
     # Returns True if the button has been held down for
@@ -43,15 +43,15 @@ class Button():
         pass
 
 class ButtonB(Button):
-    def is_pressed(self):
-        # return rp2.bootsel_button() == 1
-        pass
+    # def is_pressed(self):
+    #     return rp2.bootsel_button() == 1
+    pass
 
 class ButtonC(Button):
-    def __init__(self):
-        # self.pin = Pin(0)
-        # super().__init__()
-        pass
+    # def __init__(self):
+    #     self.pin = Pin(0)
+    #     super().__init__()
+    pass
 
     def is_pressed(self):
         # self.pin.init(Pin.IN, Pin.PULL_UP)
@@ -71,8 +71,8 @@ class ButtonA(Button):
     def is_pressed(self):
         # self.pin.init(Pin.IN, Pin.PULL_UP)
         # ret = self.pin.value()
-
-        # keep this pin low by default
+        #
+        # # keep this pin low by default
         # Pin(25).init(Pin.OUT, value=0)
         # return not ret
         pass
