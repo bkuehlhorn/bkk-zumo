@@ -6,7 +6,7 @@ import random
 from collections import deque
 
 from finite_machine import proximity_sensors_event
-import button
+from finite_machine import button
 
 class Event_trigger(object):
     button_a_triggered = 'button_a_triggered'
@@ -81,6 +81,7 @@ class Buttons(object):
         #     if not self.buttons_list[0]:
         button_labels = 'abc'
 
+        # print(f'{self.buttons_list=}')
         for button_index in range(len(self.buttons_list)):
             # self.display.text(f'pressed: {button_index}', 0, 14)
             if self.buttons[button_index].is_pressed() and not self.buttons_list[button_index]:
@@ -173,6 +174,7 @@ class CheckEvents(object):
         self.triggered_events.update(proximity_triggers)
         angular_event = self.angular_event.check_angle()
         self.triggered_events.update(angular_event)
+        # print(f'{self.triggered_events=}')
         return
 
     def triggered_event(self, _state_events) -> str:

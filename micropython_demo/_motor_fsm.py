@@ -12,6 +12,7 @@ from finite_machine import proximity_sensors_event
 display = robot.Display()
 lineSensors = robot.LineSensors()
 proximity_sensors = proximity_sensors_event.ProximitySensors(robot)
+angular_event = events.AngularEvent(robot)
 
 drive_sides_seconds = 2
 drive_corners_seconds = 1.5
@@ -142,7 +143,7 @@ actionMatrix = {
 
 # logging = fsm_logging()
 checkEvents = events.CheckEvents(stateMatrix, timer_action_event,
-                                 display, lineSensors, proximity_sensors)
+                                 display, lineSensors, proximity_sensors, angular_event)
 stateActions = actions.StateAction(actionMatrix, display)
 
 fsm = fsm.FSM(checkEvents, stateActions, stateMatrix, robot, display)

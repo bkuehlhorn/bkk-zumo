@@ -45,7 +45,7 @@ class FSM():
             # self.display.fill(0)
             self.checkEvents.check_events()
             triggered_event = self.checkEvents.triggered_event(self.stateMatrix[self.state])
-            # print(f'{triggered_event=}')
+            # print(f'{self.stateMatrix[self.state].keys()=}')
 
             next_state = self.stateMatrix[self.state].get(triggered_event, None)
             if next_state is not None:
@@ -56,7 +56,7 @@ class FSM():
 
             line_scale = 24 / 1023
             prox_scale = 10
-            # print(f'line: {self.checkEvents.lineEvents.line}')
+            # print(f'{self.state=}\n{self.checkEvents.lineEvents.line}')
 
             if display_details == 'line':
                     self.display.fill_rect(24, 64 - int(self.checkEvents.lineEvents.line[0] * line_scale), 8, int(self.checkEvents.lineEvents.line[0] * line_scale), 1)

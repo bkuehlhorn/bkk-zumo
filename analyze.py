@@ -1,10 +1,7 @@
 import graphviz
 import os
 
-from analyze_fsm import fsm
-from analyze_fsm import actions
-from analyze_fsm import events
-from analyze_fsm import proximity_sensors_event
+from analyze_fsm import actions, events, proximity_sensors_event
 
 led_seconds = 5000 # micro ticks
 timer_action_event = events.Timer()
@@ -15,7 +12,7 @@ lineSensors = 'robot.LineSensors()'
 proximity_sensors = 'proximity_sensors_event.ProximitySensors(robot)'
 angular_event = 'events.AngularEvent(robot)'
 
-fsm_folders_os = os.listdir('fsm_files')
+fsm_folders_os = os.listdir('micropython_demo/fsm_files')
 fsm_folders = ['button_fsm', 'led_fsm', 'motor_fsm', 'motor_fb_fsm',
                'proximity_fsm', 'line_following_fsm',]
 # fsm_files = fsm_folders[5]
@@ -31,7 +28,8 @@ for fsm_file in fsm_folders_os:
             case 'proximity_fsm': from fsm_files import proximity_fsm as fsm_import
             case 'line_following_fsm': from fsm_files import line_following_fsm as fsm_import
 
-        fsm_machine = fsm_import.FSM(events, actions, display, proximity_sensors, angular_event, timer_action_event, lineSensors, proximity_sensors_event)
+        fsm_machine = fsm_import.FSM(events, actions, display, proximity_sensors, angular_event, timer_action_event, lineSensors,
+                                     proximity_sensors_event)
         fsm_machine.stateMatrix.keys()
         checkEvents = events.CheckEvents(fsm_machine.stateMatrix, timer_action_event,
                                          display, lineSensors, proximity_sensors, angular_event)
