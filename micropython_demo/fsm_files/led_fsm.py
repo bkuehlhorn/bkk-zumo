@@ -7,6 +7,7 @@ class FSM():
     drive_spin = 1000
     spin_speed = 1000
     drive_speed = 3000
+    display_details = "imu_display"
 
     def __init__(self, _events, _actions, _display, _proximity_sensors, _angular_event, _timer_action_event, _lineSensors, _proximity_sensors_event):
         self.events = _events
@@ -33,23 +34,23 @@ class FSM():
             "state2": {
                 self.events.Event_trigger.timeout_triggers[0]: "state3",
                 self.events.Event_trigger.done_triggered: "done",
-                self.events.Event_trigger.timeout_triggers[1]: "init",
+                self.events.Event_trigger.timeout_triggers[1]: "state1",
             },
             "state3": {
                 self.events.Event_trigger.timeout_triggers[0]: "state4",
                 self.events.Event_trigger.done_triggered: "done",
-                self.events.Event_trigger.timeout_triggers[1]: "init",
+                self.events.Event_trigger.timeout_triggers[1]: "state2",
             },
             "state4": {
                 self.events.Event_trigger.timeout_triggers[0]: "state5",
                 self.events.Event_trigger.done_triggered: "done",
-                self.events.Event_trigger.timeout_triggers[1]: "init",
+                self.events.Event_trigger.timeout_triggers[1]: "state3",
             },
-            # "state5": {
-            #     self.events.Event_trigger.timeout_triggers[0]: "init",
-            #     self.events.Event_trigger.timeout_triggers[1]: "init",
-            #     self.events.Event_trigger.done_triggered: "done",
-            # },
+            "state5": {
+                self.events.Event_trigger.timeout_triggers[0]: "init",
+                self.events.Event_trigger.done_triggered: "done",
+                self.events.Event_trigger.timeout_triggers[1]: "state4",
+            },
             "proximity": {
                 self.events.Event_trigger.timeout_triggers[0]: "init",
                 "proximity_triggered": "state4",
@@ -72,18 +73,27 @@ class FSM():
             "init": [(self.actions.off_leds, ()),
                      (self.actions.display_text, ("init",)),
                      (self.actions.set_leds, (0, 100, 1, 1)),
+                     (self.actions.set_leds, (1, 0, 0, 0)),
                      (self.timer_action_event.start, (self.led_seconds, 1))],
             "state1": [(self.actions.set_leds, (1, 1, 100, 1)),
+                       (self.actions.set_leds, (2, 0, 0, 0)),
                        (self.actions.display_text, ("state1",)),
                        (self.timer_action_event.start, (self.led_seconds, 1))],
             "state2": [(self.actions.set_leds, (2, 1, 1, 100)),
+                       (self.actions.set_leds, (3, 0, 0, 0)),
                        (self.actions.display_text, ("state2",)),
                        (self.timer_action_event.start, (self.led_seconds, 1))],
             "state3": [(self.actions.set_leds, (3, 100, 100, 1)),
+                       (self.actions.set_leds, (4, 0, 0, 0)),
                        (self.actions.display_text, ("state3",)),
                        (self.timer_action_event.start, (self.led_seconds, 1))],
             "state4": [(self.actions.set_leds, (4, 1, 100, 100)),
+                       # (self.actions.set_leds, (5, 0, 0, 0)),
                        (self.actions.display_text, ("state4",)),
+                       (self.timer_action_event.start, (self.led_seconds, 1))],
+            "state5": [(self.actions.set_leds, (5, 100, 100, 100)),
+                       (self.actions.set_leds, (4, 0, 0, 0)),
+                       (self.actions.display_state, ()),
                        (self.timer_action_event.start, (self.led_seconds, 1))],
             "proximity": [(self.actions.set_leds, (5, 100, 100, 100)),
                        (self.actions.display_text, ("state5",)),

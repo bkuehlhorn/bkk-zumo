@@ -30,5 +30,5 @@ print(fsm_file)
 stateActions = actions.StateAction(fsm_machine.actionMatrix, display)
 
 fsm = fsm.FSM(fsm_machine.checkEvents, stateActions, fsm_machine.stateMatrix, robot, display)
-fsm.do_fsm()
+fsm.do_fsm(fsm_machine.display_details)
 print("done")

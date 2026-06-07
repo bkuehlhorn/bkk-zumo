@@ -88,7 +88,7 @@ class Buttons(object):
                 self.buttons_list[button_index] = True
                 if self.buttons[button_index].check():
                     # self.display.text(f'bp:{button_labels[button_index]}', 0, 14)
-                    self.buttons_pressed += button_labels[button_index]
+                    self.buttons_pressed.append(button_labels[button_index])
             elif not self.buttons[button_index].is_pressed():
                 self.buttons_list[button_index] = False
         return self.buttons_list
