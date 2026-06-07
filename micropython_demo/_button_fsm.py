@@ -15,105 +15,20 @@ angular_event = events.AngularEvent(robot)
 
 led_seconds = 5000 # micro ticks
 timer_action_event = events.Timer()
+fsm_file = 'button_fsm'
+if fsm_file == "button_fsm": from fsm_files import button_fsm as fsm_import
+elif fsm_file == "led_fsm": from fsm_files import led_fsm as fsm_import
+elif fsm_file == "motor_fsm": from fsm_files import motor_fsm as fsm_import
+elif fsm_file == "motor_fb_fsm": from fsm_files import motor_fb_fsm as fsm_import
+elif fsm_file == "proximity_fsm": from fsm_files import proximity_fsm as fsm_import
+elif fsm_file == "line_following_fsm": from fsm_files import line_following_fsm as fsm_import
+fsm_machine = fsm_import.FSM(events, actions, display, proximity_sensors, angular_event, timer_action_event, lineSensors, proximity_sensors_event)
 
-stateMatrix = {
-    "init": {
-        events.Event_trigger.button_a_triggered: "proximity",
-        events.Event_trigger.button_b_triggered: "state0",
-        events.Event_trigger.button_c_triggered: "done",
-        events.Event_trigger.timeout_triggers[0]: "state5",
-        events.Event_trigger.done_triggered: "done",
-    },
-    "state0": {
-        events.Event_trigger.button_b_triggered: "state1",
-        events.Event_trigger.timeout_triggers[0]: "init",
-        events.Event_trigger.done_triggered: "done",
-    },
-    "state1": {
-        events.Event_trigger.button_b_triggered: "state2",
-        events.Event_trigger.timeout_triggers[0]: "state0",
-        events.Event_trigger.done_triggered: "done",
-    },
-    "state2": {
-        events.Event_trigger.button_b_triggered: "state3",
-        events.Event_trigger.timeout_triggers[0]: "state1",
-        events.Event_trigger.done_triggered: "done",
-    },
-    "state3": {
-        events.Event_trigger.button_b_triggered: "state4",
-        events.Event_trigger.timeout_triggers[0]: "state2",
-        events.Event_trigger.done_triggered: "done",
-    },
-    "state4": {
-        events.Event_trigger.button_b_triggered: "state5",
-        events.Event_trigger.timeout_triggers[0]: "state3",
-        events.Event_trigger.done_triggered: "done",
-    },
-    "state5": {
-        "init": "state4",
-        events.Event_trigger.button_b_triggered: "init",
-        events.Event_trigger.timeout_triggers[0]: "state4",
-        events.Event_trigger.done_triggered: "done",
-    },
-    "proximity": {
-        "init": "state4",
-        "timeout_triggers[0]": "init",
-        proximity_sensors_event.Triggers.sensor_left_left_closer_triggered: "state0",
-        proximity_sensors_event.Triggers.sensor_left_right_closer_triggered: "state1",
-        proximity_sensors_event.Triggers.sensor_front_left_closer_triggered: "state2",
-        proximity_sensors_event.Triggers.sensor_front_right_closer_triggered: "state3",
-        proximity_sensors_event.Triggers.sensor_right_left_closer_triggered: "state4",
-        proximity_sensors_event.Triggers.sensor_right_right_closer_triggered: "state5",
-        events.Event_trigger.done_triggered: "done"
-    },
-    "done": {
-        "done": "done"
-    },
-}
-state = "init"
-actionMatrix = {
-    "init": [(actions.off_leds, ()),
-             (actions.display_text, ("init xxx", True)),
-             (timer_action_event.start, (led_seconds,)),
-             ],
-    "state0": [(actions.set_leds, (0, 100, 0, 0)),
-               (actions.display_text, ("state0", True)),
-               (timer_action_event.start, (led_seconds,)),
-               ],
-    "state1": [(actions.set_leds, (1, 0, 100, 0)),
-               (actions.display_text, ("state1",)),
-               (timer_action_event.start, (led_seconds,)),
-               ],
-    "state2": [(actions.set_leds, (2, 0, 0, 100)),
-               (actions.display_text, ("state2", True)),
-               (timer_action_event.start, (led_seconds,)),
-               ],
-    "state3": [(actions.set_leds, (3, 100, 100, 0)),
-               (actions.display_text, ("state3", True)),
-               (timer_action_event.start, (led_seconds,)),
-               ],
-    "state4": [(actions.set_leds, (4, 0, 100, 100)),
-               (actions.display_text, ("state4", True)),
-               (timer_action_event.start, (led_seconds,)),
-               ],
-    "state5": [(actions.set_leds, (5, 100, 0, 100)),
-               (actions.display_text, ("state5", True)),
-               (timer_action_event.start, (led_seconds,)),
-               ],
-    "proximity": [
-               (actions.display_state, ()),
-               (timer_action_event.start, (led_seconds,)),
-               ],
-    "done": [(actions.done_action,),
-             (actions.off_leds,), ]
-}
+print(fsm_file)
+# checkEvents = events.CheckEvents(fsm_machine.stateMatrix, timer_action_event,
+#                                  display, lineSensors, proximity_sensors, angular_event)
+stateActions = actions.StateAction(fsm_machine.actionMatrix, display)
 
-
-# logging = fsm_logging()
-checkEvents = events.CheckEvents(stateMatrix, timer_action_event,
-                                 display, lineSensors, proximity_sensors, angular_event)
-stateActions = actions.StateAction(actionMatrix, display)
-
-fsm = fsm.FSM(checkEvents, stateActions, stateMatrix, robot, display)
+fsm = fsm.FSM(fsm_machine.checkEvents, stateActions, fsm_machine.stateMatrix, robot, display)
 fsm.do_fsm()
 print("done")

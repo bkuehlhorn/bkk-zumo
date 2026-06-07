@@ -15,7 +15,7 @@ angular_event = events.AngularEvent(robot)
 
 led_seconds = 5000 # micro ticks
 timer_action_event = events.Timer()
-fsm_file = 'led_fsm'
+fsm_file = 'motor_fb_fsm'
 if fsm_file == "button_fsm": from fsm_files import button_fsm as fsm_import
 elif fsm_file == "led_fsm": from fsm_files import led_fsm as fsm_import
 elif fsm_file == "motor_fsm": from fsm_files import motor_fsm as fsm_import

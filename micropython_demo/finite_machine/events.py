@@ -88,7 +88,7 @@ class Buttons(object):
                 self.buttons_list[button_index] = True
                 if self.buttons[button_index].check():
                     # self.display.text(f'bp:{button_labels[button_index]}', 0, 14)
-                    self.buttons_pressed.append(button_labels[button_index])
+                    self.buttons_pressed += button_labels[button_index]
             elif not self.buttons[button_index].is_pressed():
                 self.buttons_list[button_index] = False
         return self.buttons_list
@@ -124,22 +124,26 @@ class LineEvents(object):
         self.line_sensors = _line_sensors
         self.line = [0,0,0,0,0]
         # self.line_last_trigger =
-        self.line_trigger = 5*['']
+        self.line_trigger = 5*['init']
 
     def read(self):
         triggered = []
         line_trigger = self.line_trigger.copy()
         self.line = self.line_sensors.read()
         for index in range(len(self.line)):
-            if self.line_trigger[index] == 'low':
-                if self.line[index] >= self.line_high_limit:
+            if self.line[index] >= self.line_high_limit:
+                if self.line_trigger[index] != 'high':
                     self.line_trigger[index] = 'high'
-                    triggered.append(Event_trigger.line_high_triggers[index])
+                    triggered += Event_trigger.line_high_triggers[index]
             elif self.line[index] <= self.line_low_limit:
-                self.line_trigger[index] = 'low'
-                triggered.append(Event_trigger.line_low_triggers[index])
+                if self.line_trigger[index] != 'low':
+                    self.line_trigger[index] = 'low'
+                    triggered += Event_trigger.line_low_triggers[index]
         # print(f'{triggered=}')
         return triggered
+
+    def reset_trigger(self):
+        self.line_trigger = 5*['init']
 
 
 class CheckEvents(object):
@@ -191,6 +195,7 @@ class CheckEvents(object):
 
     def clear_events(self):
         self.triggered_events = set()
+        self.lineEvents.reset_trigger()
         return
 
 def prompt_event(_state, _events) -> bool:
