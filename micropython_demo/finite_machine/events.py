@@ -28,7 +28,10 @@ class Event_trigger(object):
         'line_3_high_triggered',
         'line_4_high_triggered',
     ]
-    timeout_triggered = 'timeout_triggered'
+    line_left_trigger = 'left_side_trigger'
+    line_center_trigger = 'center_trigger'
+    line_right_trigger = 'right_side_trigger'
+
     timeout_triggers = [
         'timeout_triggered0',
         'timeout_triggered1',
@@ -125,21 +128,38 @@ class LineEvents(object):
         self.line = [0,0,0,0,0]
         # self.line_last_trigger =
         self.line_trigger = 5*['init']
+        self.line_follow_event = ""
+        self.line_position = 512
 
     def read(self):
-        triggered = []
+        right_line = 2250
+        left_line = 1750
+        line_debounce = 50
+        triggered = set()
         line_trigger = self.line_trigger.copy()
         self.line = self.line_sensors.read()
         for index in range(len(self.line)):
             if self.line[index] >= self.line_high_limit:
                 if self.line_trigger[index] != 'high':
                     self.line_trigger[index] = 'high'
-                    triggered += Event_trigger.line_high_triggers[index]
+                    triggered.add(Event_trigger.line_high_triggers[index])
             elif self.line[index] <= self.line_low_limit:
                 if self.line_trigger[index] != 'low':
                     self.line_trigger[index] = 'low'
-                    triggered += Event_trigger.line_low_triggers[index]
-        # print(f'{triggered=}')
+                    triggered.add(Event_trigger.line_low_triggers[index])
+        new_line_position = (1000*self.line[1] + 2000*self.line[2] + 3000*self.line[3] + 4000*self.line[4]) // sum(self.line)
+        if new_line_position < left_line and self.line_follow_event != Event_trigger.line_left_trigger:
+            self.line_follow_event = Event_trigger.line_left_trigger
+            triggered.add(self.line_follow_event)
+        elif new_line_position > right_line and self.line_follow_event != Event_trigger.line_right_trigger:
+            self.line_follow_event = Event_trigger.line_right_trigger
+            triggered.add(self.line_follow_event)
+        elif (right_line > new_line_position > left_line) and self.line_follow_event != Event_trigger.line_center_trigger:
+            self.line_follow_event = Event_trigger.line_center_trigger
+            triggered.add(self.line_follow_event)
+        self.line_position = new_line_position
+        if triggered:
+            print(f'{triggered=}')
         return triggered
 
     def reset_trigger(self):
@@ -166,19 +186,23 @@ class CheckEvents(object):
 
     def check_events(self):
         self.triggered_events.add(self.timer.event_triggered())
+        # print(f'timeout:{self.triggered_events=}')
         button_event_list = self.buttons.check_button_pressed()
         button_event = self.buttons.get_button_pressed()
         if button_event is not None:
             # self.display.text(f'be:{button_event}', 0, 14)
             self.triggered_events.add(button_event)
+        # print(f'button:{self.triggered_events=}')
         line_events = self.lineEvents.read()
         # print(f'{line_events=}')
+        print(f'line:{set(line_events)}')
         self.triggered_events.update(line_events)
         proximity_triggers = self.proximity_sensors.check_distance()
+        print(f'proximity:{proximity_triggers}')
         self.triggered_events.update(proximity_triggers)
         angular_event = self.angular_event.check_angle()
         self.triggered_events.update(angular_event)
-        # print(f'{self.triggered_events=}')
+        # print(f'{set(self.triggered_events)}')
         return
 
     def triggered_event(self, _state_events) -> str:
@@ -216,9 +240,8 @@ class Timer(object):
         if self.timeout_end != 0.0:
             if self.timeout_end < time.ticks_us():
                 self.timeout_end = 0.0
-                counts = random.randint(0, self.timeout_counts)
-                triggered = (Event_trigger.timeout_triggered +
-                           str(counts))
+                count = random.randint(0, self.timeout_counts)
+                triggered = Event_trigger.timeout_triggers[count]
                 return triggered
         return None
 

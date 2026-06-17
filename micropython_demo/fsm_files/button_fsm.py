@@ -7,7 +7,9 @@ class FSM():
     drive_spin = 1000
     spin_speed = 1000
     drive_speed = 3000
+    # imu_display, line, line_display, prox, prox_display
     display_details = "imu_display"
+    logging = True
 
     def __init__(self, _events, _actions, _display, _proximity_sensors, _angular_event, _timer_action_event, _lineSensors, _proximity_sensors_event):
         self.events = _events
@@ -84,6 +86,7 @@ class FSM():
             "init": [(self.actions.off_leds, ()),
                      (self.actions.display_text, ("init xxx", True)),
                      (self.timer_action_event.start, (self.led_seconds,)),
+                     (self.checkEvents.clear_events, ()),
                      ],
             "state0": [(self.actions.set_leds, (0, 100, 0, 0)),
                        (self.actions.display_text, ("state0", True)),

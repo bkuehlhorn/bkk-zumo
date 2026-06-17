@@ -8,7 +8,9 @@ class FSM():
     spin_speed = 1000
     drive_speed = 3000
     move_speed = 1000
-    display_details = "line_display"
+    # imu_display, line, line_display, prox, prox_display
+    display_details = "prox_display"
+    logging = True
 
     def __init__(self, _events, _actions, _display, _proximity_sensors, _angular_event, _timer_action_event, _lineSensors, _proximity_sensors_event):
         self.events = _events
@@ -42,9 +44,9 @@ class FSM():
                  self.events.Event_trigger.button_b_triggered: "init",
                  self.events.Event_trigger.button_c_triggered: "done",
                  self.events.Event_trigger.timeout_triggers[0]: "move_forward",
-                 self.events.Event_trigger.timeout_triggers[1]: "move_forward",
-                 self.events.Event_trigger.timeout_triggers[2]: "spin_left",
-                 self.events.Event_trigger.timeout_triggers[3]: "spin_right",
+                 # self.events.Event_trigger.timeout_triggers[1]: "move_forward",
+                 # self.events.Event_trigger.timeout_triggers[2]: "spin_left",
+                 # self.events.Event_trigger.timeout_triggers[3]: "spin_right",
             },
             "move_left": {
                  self.events.Event_trigger.timeout_triggers[0]: "clear_events",
@@ -121,8 +123,9 @@ class FSM():
             "check_line": [
                 (self.actions.off_leds, ()),
                 (self.actions.display_state, ()),
-                (self.actions.set_leds, (1, 255, 255, 255)),
-                (self.timer_action_event.start, (self.line_seconds,3)),
+                (self.actions.set_leds, (4, 255, 255, 255)),
+                # (self.timer_action_event.start, (self.line_seconds,3)),
+                (self.timer_action_event.start, (self.line_seconds)),
             ],
             "move_backward": [
                 (self.actions.back, (self.move_speed,)),

@@ -15,7 +15,7 @@ angular_event = events.AngularEvent(robot)
 
 led_seconds = 5000 # micro ticks
 timer_action_event = events.Timer()
-fsm_file = 'button_fsm'
+fsm_file = 'line_following_fsm'
 if fsm_file == "button_fsm": from fsm_files import button_fsm as fsm_import
 elif fsm_file == "led_fsm": from fsm_files import led_fsm as fsm_import
 elif fsm_file == "motor_fsm": from fsm_files import motor_fsm as fsm_import
@@ -30,6 +30,6 @@ print(fsm_file)
 #                                  display, lineSensors, proximity_sensors, angular_event)
 stateActions = actions.StateAction(fsm_machine.actionMatrix, display)
 
-fsm = fsm.FSM(fsm_machine, stateActions, robot, display, fsm_file)
+fsm = fsm.FSM(fsm_machine.checkEvents, stateActions, fsm_machine.stateMatrix, robot, display)
 fsm.do_fsm(fsm_machine.display_details)
 print("done")
