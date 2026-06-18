@@ -57,8 +57,8 @@ class Event_trigger(object):
 
 
 class Buttons(object):
-    def __init__(self, display):
-        self.display = display
+    def __init__(self, display=None):
+        # self.display = display
         self.button_a = button.ButtonA()
         self.button_a.debounce_ms = 5
         self.button_a.long_press_ms = 75
@@ -158,8 +158,8 @@ class LineEvents(object):
             self.line_follow_event = Event_trigger.line_center_trigger
             triggered.add(self.line_follow_event)
         self.line_position = new_line_position
-        if triggered:
-            print(f'{triggered=}')
+        # if triggered:
+        #     print(f'{triggered=}')
         return triggered
 
     def reset_trigger(self):
@@ -169,7 +169,7 @@ class LineEvents(object):
 class CheckEvents(object):
     def __init__(self, _state_matrix, _timer, _display, _line_sensors, _proximity_sensors, _angular_event):
         self.eventSet = set()
-        self.display = _display
+        # self.display = _display
         # self.events = _events
         self.state_matrix = _state_matrix
         self.not_halted = True
@@ -195,10 +195,10 @@ class CheckEvents(object):
         # print(f'button:{self.triggered_events=}')
         line_events = self.lineEvents.read()
         # print(f'{line_events=}')
-        print(f'line:{set(line_events)}')
+        # print(f'line:{set(line_events)}')
         self.triggered_events.update(line_events)
         proximity_triggers = self.proximity_sensors.check_distance()
-        print(f'proximity:{proximity_triggers}')
+        # print(f'proximity:{proximity_triggers}')
         self.triggered_events.update(proximity_triggers)
         angular_event = self.angular_event.check_angle()
         self.triggered_events.update(angular_event)
@@ -209,8 +209,8 @@ class CheckEvents(object):
         state_events = set(_state_events.keys())
         triggered = self.triggered_events.intersection(state_events)
         self.triggered_events -= triggered
-        if len(triggered) > 0:
-            print(f'triggered={list(triggered)}')
+        # if len(triggered) > 0:
+        #     print(f'triggered={list(triggered)}')
 
         if len(triggered) == 0:
             return None
@@ -251,7 +251,7 @@ class AngularEvent(object):
     kd = 7
 
     def __init__(self, _robot):
-        self.display = None
+        # self.display = None
         self.imu = _robot.IMU()
         self.imu.reset()
         self.imu.enable_default()
@@ -264,11 +264,11 @@ class AngularEvent(object):
         self.robot_angle = 0.0
         self.trigger_angle = None
 
-    def calibrate(self, _display):
-        self.display = _display
-        self.display.fill(0)
-        self.display.text("Calibrating...", 0, 0, 1)
-        self.display.show()
+    def calibrate(self, _display=None):
+        # self.display = _display
+        # self.display.fill(0)
+        # self.display.text("Calibrating...", 0, 0, 1)
+        # self.display.show()
         time.sleep_ms(500)
         while time.ticks_diff(time.ticks_ms(), self.calibration_start) < 1000:
             if self.imu.gyro.data_ready():

@@ -33,8 +33,8 @@ def display_text(_text, _display_state=False):
         display.text('_text', 0, 14)
         print(f"state:{state}, text:{_text}")
     display.text(_text, 0, 0)
-    display.text('_textxx', 10, 8)
-    print(f"{_text=} xxx")
+    # display.text('_textxx', 10, 8)
+    print(f"{_text=}")
 
 def display_state():
     display.text(state, 0, 8)
@@ -103,8 +103,8 @@ class StateAction(object):
         if _state == "done":
             self.not_halted = False
             return
-        display.text(_state, 0, 0)
-        self.display.text(_state, 0, 44)
+        # display.text(_state, 0, 0)
+        # self.display.text(_state, 0, 44)
 
         for action in self.actions[_state]:
             if action is not None:

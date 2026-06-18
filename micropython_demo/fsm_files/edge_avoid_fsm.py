@@ -1,12 +1,12 @@
 class FSM():
     led_seconds =   1000 # micro ticks
     drive_seconds = 2000
-    line_seconds =  6000
+    line_seconds =  1000
     sensor_seconds = 500
     spin_seconds =  500
     drive_spin = 1000
     spin_speed = 1000
-    drive_speed = 3000
+    drive_speed = 1000
     move_speed = 1000
     # imu_display, line, line_display, prox, prox_display
     display_details = "line_display"
@@ -34,6 +34,16 @@ class FSM():
                 self.events.Event_trigger.line_right_trigger: "right",
                 self.events.Event_trigger.line_center_trigger: "center",
                 self.events.Event_trigger.line_left_trigger: "left",
+                # self.events.Event_trigger.line_low_triggers[0]: "left",
+                # self.events.Event_trigger.line_high_triggers[0]: "left",
+                # self.events.Event_trigger.line_low_triggers[1]: "left",
+                # self.events.Event_trigger.line_high_triggers[1]: "left",
+                # self.events.Event_trigger.line_low_triggers[2]: "center",
+                # self.events.Event_trigger.line_high_triggers[2]: "center",
+                # self.events.Event_trigger.line_low_triggers[3]: "right",
+                # self.events.Event_trigger.line_high_triggers[3]: "right",
+                # self.events.Event_trigger.line_low_triggers[4]: "right",
+                # self.events.Event_trigger.line_high_triggers[4]: "right",
                 self.events.Event_trigger.button_b_triggered: "init",
                 self.events.Event_trigger.button_c_triggered: "done",
                 self.events.Event_trigger.timeout_triggers[0]: "move_forward",
@@ -69,7 +79,8 @@ class FSM():
                 self.events.Event_trigger.timeout_triggers[0]: "check_line",
             },
             "center": {
-                self.events.Event_trigger.timeout_triggers[0]: "check_line",
+                self.events.Event_trigger.timeout_triggers[0]: "left",
+                self.events.Event_trigger.timeout_triggers[1]: "right",
             },
             "right": {
                 self.events.Event_trigger.timeout_triggers[0]: "check_line",
@@ -147,8 +158,8 @@ class FSM():
             "center": [
                 (self.actions.display_state, ()),
                 (self.actions.set_leds, (4, 1, 100, 1)),
-                (self.timer_action_event.start, (self.line_seconds,)),
-                (self.actions.forward, (self.move_speed,)),
+                (self.timer_action_event.start, (self.line_seconds, 1)),
+                (self.actions.back, (self.move_speed,)),
             ],
             "right": [
                 (self.actions.display_state, ()),

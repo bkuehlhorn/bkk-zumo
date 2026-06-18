@@ -16,7 +16,18 @@ clock_rate = 0
 state_delay = 1
 
 class FSM():
+    '''
+    Execute Finite State Machine to drive the Zumo robot.
+    '''
     def __init__(self, _fsm_machine, _state_actions, _robot, _display, _fsm_name):
+        '''
+        Initialize the FSM.
+        :param _fsm_machine: Event triggers and stateMatrix
+        :param _state_actions: State actions - actionMatrix
+        :param _robot: Robot to control Zumo
+        :param _display: Display object to share with FSM - no longer needed
+        :param _fsm_name: Name of FSM loaded. Used in logging
+        '''
         # logging = fsm_logging()
         self.fsm_machine = _fsm_machine
         # self.fsm_machine.checkEvents = _fsm_machine.checkEvents
@@ -24,12 +35,12 @@ class FSM():
         self.stateActions = _state_actions
         # self.fsm_machine.stateMatrix = _fsm_machine.stateMatrix
         self.robot = _robot
-        self.display = _display
-        self.buttons = events.Buttons(self.display)
+        self.display = self.robot.Display()
+        self.buttons = events.Buttons()
         self.proximity_sensors = self.robot.ProximitySensors()
         self.rgb_leds = self.robot.RGBLEDs()
         self.rgb_leds.set_brightness(2)
-        self.fsm_machine.checkEvents.angular_event.calibrate(self.display)
+        self.fsm_machine.checkEvents.angular_event.calibrate()
         self.imu = self.robot.IMU()
         self.imu.reset()
         self.imu.enable_default()
@@ -75,6 +86,7 @@ class FSM():
                     # self.file.write(f'....{self.fsm_machine.checkEvents.lineEvents.line}\n')
                 # time.sleep(state_delay)
                 self.state = next_state
+                self.display.text(self.state, 0, 0)
 
             line_scale = 24 / 1023
             prox_scale = 10

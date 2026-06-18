@@ -73,12 +73,6 @@ class FSM():
             },
         }
         self.state = "init"
-        x = self.stateMatrix
-        x = self.timer_action_event
-        x = self.display
-        x = self.lineSensors
-        x = self.proximity_sensors_event
-        x = self.angular_event
         self.checkEvents = self.events.CheckEvents(self.stateMatrix, self.timer_action_event, self.display,
                                                    self.lineSensors, self.proximity_sensors, self.angular_event)
 
